@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cowrie-lb
+  labels:
+    app: cowrie-app
+spec:
+  selector:
+    app: cowrie-app
+    tier: honeypot
+  ports:
+    - protocol: "TCP"
+      port: 22
+      targetPort: 2222
+  type: LoadBalancer
+  loadBalancerIP: 10.172.109.53
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cowrie-app
+  labels:
+    app: cowrie-app
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: cowrie-app
+      tier: honeypot
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cowrie-app
+        tier: honeypot
+    spec:
+      # runtimeClassName: gvisor   # ADD THIS LINE
+      containers:
+      - image: cowrie/cowrie:latest
+        name: cowrie-app
+        # env:
+        # - name: WORDPRESS_DB_HOST
+        #   value: cowrie-app-mysql
+        # - name: WORDPRESS_DB_PASSWORD
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: mysql-pass
+        #       key: password
+        ports:
+        - containerPort: 2222
+          name: cowrie-app
+      #   volumeMounts:
+      #   - name: cowrie-app-persistent-storage
+      #     mountPath: /var/www/html
+      # volumes:
+      # - name: cowrie-app-persistent-storage
+      #   persistentVolumeClaim:
+      #     claimName: wp-pv-claim
