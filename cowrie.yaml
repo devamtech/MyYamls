@@ -13,7 +13,7 @@ spec:
       port: 22
       targetPort: 2222
   type: LoadBalancer
-  loadBalancerIP: 10.172.109.53
+  
 ---
 apiVersion: apps/v1
 kind: Deployment
